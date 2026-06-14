@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة أستاذ الأحياء - الكتب الإلكترونية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{background:#f0f2f5;min-height:100vh}
+        .login-page{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);padding:15px}
+        .login-container{background:#fff;padding:clamp(20px,4vw,40px);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:450px;max-width:95%}
+        .login-container h1{text-align:center;color:#2d5a27;margin-bottom:5px;font-size:clamp(1.3em,4vw,2em)}
+        .subtitle{text-align:center;color:#666;margin-bottom:clamp(15px,3vw,30px);font-size:clamp(.8em,2vw,.9em)}
+        .login-tabs{display:flex;gap:8px;margin-bottom:clamp(15px,3vw,20px)}
+        .login-tab{flex:1;padding:clamp(8px,2vw,12px);border:2px solid #2d5a27;background:#fff;color:#2d5a27;border-radius:10px;font-size:clamp(13px,2vw,16px);font-weight:700;cursor:pointer;text-align:center;transition:.3s}
+        .login-tab.active{background:#2d5a27;color:#fff}
+        .login-form{display:none}.login-form.active{display:block}
+        .form-group{margin-bottom:clamp(12px,2vw,20px)}
+        .form-group label{display:block;margin-bottom:5px;font-weight:700;color:#333;font-size:clamp(.9em,2vw,1.1em)}
+        .form-group input{width:100%;padding:clamp(10px,2vw,15px);border:2px solid #e0e0e0;border-radius:10px;font-size:clamp(14px,2vw,16px);transition:.3s}
+        .form-group input:focus{outline:none;border-color:#2d5a27;box-shadow:0 0 0 3px rgba(45,90,39,.1)}
+        .login-btn{width:100%;padding:clamp(10px,2vw,15px);background:#2d5a27;color:#fff;border:none;border-radius:10px;font-size:clamp(15px,2.5vw,18px);font-weight:700;cursor:pointer;margin-top:5px;transition:.3s}
+        .login-btn:hover{background:#1a3a15;transform:translateY(-2px);box-shadow:0 5px 20px rgba(0,0,0,.3)}
+        .student-login-btn{background:#007bff}.student-login-btn:hover{background:#0056b3}
+        .verify-code-btn{background:#28a745}.verify-code-btn:hover{background:#1e7e34}
+        .msg{padding:8px;border-radius:6px;margin-top:10px;text-align:center;display:none;font-size:clamp(.8em,1.5vw,.9em)}
+        .msg-error{background:#f8d7da;color:#721c24}.msg-success{background:#d4edda;color:#155724}.msg.show{display:block}
+        .register-link,.back-link{text-align:center;margin-top:15px;font-size:clamp(.8em,1.5vw,.9em)}
+        .register-link a,.back-link a{color:#007bff;cursor:pointer;text-decoration:underline}
+        .main-page{display:none;min-height:100vh}.main-page.active{display:flex}
+        .top-bar{position:fixed;top:0;left:0;right:0;background:#fff;padding:clamp(8px,1.5vw,15px) clamp(10px,2vw,20px);box-shadow:0 2px 10px rgba(0,0,0,.1);z-index:1000;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+        .top-bar h3{font-size:clamp(.9em,2.5vw,1.3em)}
+        .menu-btn{background:#2d5a27;color:#fff;border:none;width:clamp(35px,6vw,45px);height:clamp(35px,6vw,45px);border-radius:10px;font-size:clamp(18px,3vw,24px);cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .user-info-top{display:flex;align-items:center;gap:clamp(5px,1vw,15px);font-size:clamp(.75em,1.5vw,.9em);flex-wrap:wrap}
+        .user-badge{padding:4px 12px;border-radius:20px;font-size:.8em;font-weight:700;white-space:nowrap}
+        .badge-teacher{background:#d4edda;color:#155724}.badge-student{background:#cce5ff;color:#004085}
+        .logout-btn{padding:clamp(6px,1vw,10px) clamp(12px,2vw,20px);background:#dc3545;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:clamp(.75em,1.5vw,.9em);white-space:nowrap}
+        .sidebar{position:fixed;top:0;right:max(-300px,-80vw);width:min(300px,80vw);height:100vh;background:#fff;box-shadow:-5px 0 20px rgba(0,0,0,.2);z-index:1001;transition:right .3s;overflow-y:auto}
+        .sidebar.active{right:0}
+        .sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:none}
+        .sidebar-overlay.active{display:block}
+        .sidebar-header{padding:clamp(12px,2vw,20px);background:#2d5a27;color:#fff;display:flex;justify-content:space-between;align-items:center}
+        .close-sidebar{background:none;border:none;color:#fff;font-size:clamp(18px,3vw,24px);cursor:pointer}
+        .sidebar-menu{list-style:none;padding:clamp(8px,1.5vw,20px) 0}
+        .sidebar-menu a{display:block;padding:clamp(10px,2vw,15px) clamp(15px,3vw,25px);color:#333;text-decoration:none;font-size:clamp(.9em,2vw,1.1em);border-right:4px solid transparent;cursor:pointer;transition:.3s}
+        .sidebar-menu a:hover,.sidebar-menu a.active{background:#f0f8f0;border-right-color:#2d5a27;color:#2d5a27}
+        .sidebar-menu a.codes-link{border-right-color:#ffc107}
+        .sidebar-menu a.codes-link:hover,.sidebar-menu a.codes-link.active{background:#fff9e6;border-right-color:#ffc107;color:#856404}
+        .main-content{flex:1;margin-top:clamp(55px,10vw,80px);padding:clamp(10px,2vw,20px)}
+        .page{display:none}.page.active{display:block}
+        .page-header{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:clamp(15px,3vw,25px);box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .page-header h2{color:#2d5a27;font-size:clamp(1.2em,3vw,2em);margin-bottom:5px}
+        .codes-page-header{background:linear-gradient(135deg,#ffc107,#ff9800)}.codes-page-header h2,.codes-page-header p{color:#fff}
+        .generate-code-section,.upload-section{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:clamp(15px,3vw,25px);box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .generate-code-section{border-right:4px solid #ffc107}.upload-section{border-right:4px solid #2d5a27}
+        .upload-form{display:flex;gap:clamp(8px,1.5vw,15px);align-items:flex-end;flex-wrap:wrap}
+        .file-input-wrapper{flex:1;min-width:min(250px,60vw)}
+        .file-input-wrapper input{width:100%;padding:clamp(8px,1.5vw,12px);border:2px solid #ddd;border-radius:8px;font-size:clamp(13px,2vw,14px)}
+        .btn{padding:clamp(8px,1.5vw,12px) clamp(15px,3vw,30px);border:none;border-radius:8px;font-size:clamp(13px,2vw,16px);font-weight:700;cursor:pointer;color:#fff;transition:.3s;white-space:nowrap}
+        .btn-green{background:#2d5a27}.btn-green:hover{background:#1a3a15}
+        .btn-orange{background:#ffc107;color:#333}.btn-orange:hover{background:#ff9800;color:#fff}
+        .btn-copy{background:#17a2b8;color:#fff;padding:8px 15px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;transition:.3s;white-space:nowrap}
+        .btn-copy:hover{background:#138496}.btn-copy.copied{background:#28a745}
+        .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,85vw),1fr));gap:clamp(12px,2vw,20px)}
+        .book-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 3px 15px rgba(0,0,0,.1);transition:.3s}
+        .book-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
+        .book-cover{background:linear-gradient(135deg,#2d5a27,#4a8f3f);color:#fff;padding:clamp(25px,5vw,40px);text-align:center;font-size:clamp(2em,5vw,3em)}
+        .book-info{padding:clamp(12px,2vw,20px)}
+        .book-title{font-size:clamp(1em,2vw,1.2em);font-weight:700;margin-bottom:5px;color:#333}
+        .book-meta{color:#666;font-size:clamp(.75em,1.5vw,.9em);margin-bottom:10px}
+        .book-actions{display:flex;gap:8px;flex-wrap:wrap}
+        .read-btn{flex:1;min-width:80px;padding:clamp(8px,1.5vw,10px);background:#007bff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;text-align:center;font-size:clamp(.8em,1.5vw,.9em);transition:.3s}
+        .read-btn:hover{background:#0056b3}
+        .delete-btn{padding:clamp(8px,1.5vw,10px) clamp(10px,2vw,15px);background:#dc3545;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:clamp(.8em,1.5vw,.9em);transition:.3s}
+        .delete-btn:hover{background:#c82333}
+        .book-reader-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:2000}
+        .book-reader-overlay.active{display:flex;flex-direction:column}
+        .reader-toolbar{background:#2d2d2d;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;color:#fff;z-index:2001;flex-wrap:wrap;gap:8px}
+        .reader-toolbar h3{font-size:clamp(.85em,2vw,1.1em)}
+        .reader-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        .reader-tools button{padding:6px 12px;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;transition:.3s}
+        .btn-zoom{background:#555;color:#fff}.btn-zoom:hover{background:#777}
+        .btn-close{background:#dc3545;color:#fff}.btn-close:hover{background:#c82333}
+        .page-info{color:#ccc;font-size:.9em;white-space:nowrap}
+        .reader-container{flex:1;display:flex;justify-content:flex-start;align-items:flex-start;position:relative;overflow:auto;background:#1a1a1a;cursor:grab}
+        .reader-container:active{cursor:grabbing}
+        .page-wrapper{display:flex;justify-content:center;align-items:center;min-width:100%;min-height:100%}
+        .page-image{width:auto;height:auto;box-shadow:0 5px 30px rgba(0,0,0,.5);border-radius:3px;user-select:none;pointer-events:none}
+        .watermark-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);pointer-events:none;z-index:10;opacity:.08;white-space:nowrap}
+        .watermark-text{color:red;font-size:clamp(2em,8vw,5em);font-weight:700}
+        .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);color:#fff;border:none;width:40px;height:70px;font-size:22px;cursor:pointer;z-index:20;border-radius:5px;transition:.3s}
+        .nav-btn:hover{background:rgba(255,255,255,.4)}.nav-prev{left:10px}.nav-next{right:10px}
+        .nav-btn:disabled{opacity:.3;cursor:not-allowed}
+        .reader-progress{background:#2d2d2d;padding:8px 15px;display:flex;justify-content:center;align-items:center;gap:10px;color:#fff;flex-wrap:wrap}
+        .progress-slider{flex:1;max-width:min(400px,60vw);height:5px;-webkit-appearance:none;appearance:none;background:#555;border-radius:5px;outline:none}
+        .progress-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer}
+        .codes-list{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .codes-list-header{background:#f8f9fa;padding:12px 15px;font-weight:700}
+        .code-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:8px}
+        .code-value{font-family:'Courier New',monospace;font-size:1.1em;font-weight:700;color:#2d5a27;background:#f0f8f0;padding:4px 12px;border-radius:5px;letter-spacing:2px}
+        .no-books{text-align:center;color:#666;padding:clamp(25px,5vw,40px);background:#fff;border-radius:15px;font-size:clamp(.9em,2vw,1.2em)}
+        .copy-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:3000;justify-content:center;align-items:center}
+        .copy-modal.active{display:flex}
+        .copy-modal-content{background:#fff;padding:clamp(20px,4vw,30px);border-radius:15px;text-align:center;width:min(400px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+        .copy-modal-content h3{color:#2d5a27;margin-bottom:10px}
+        .copy-code-display{background:#f0f8f0;padding:15px;border-radius:10px;font-size:clamp(1.2em,3vw,1.8em);font-weight:700;color:#2d5a27;letter-spacing:3px;margin:15px 0;font-family:'Courier New',monospace;word-break:break-all}
+        .copy-modal-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+        .copy-modal-buttons button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;transition:.3s}
+        .btn-primary{background:#007bff;color:#fff}.btn-primary:hover{background:#0056b3}
+        .btn-secondary{background:#6c757d;color:#fff}.btn-secondary:hover{background:#545b62}
+    </style>
+</head>
+<body>
+
+<div id="copyModal" class="copy-modal">
+    <div class="copy-modal-content">
+        <h3>✅ تم إنشاء الكود بنجاح!</h3>
+        <p style="color:#666;margin-bottom:5px;">الكود الجديد:</p>
+        <div class="copy-code-display" id="modalCode">XXXXXXXX</div>
+        <p style="color:#666;font-size:.85em;margin-bottom:10px;">عدد الاستخدامات: <strong id="modalUses">1</strong></p>
+        <div class="copy-modal-buttons">
+            <button class="btn-primary" onclick="copyCodeFromModal()">📋 نسخ الكود</button>
+            <button class="btn-secondary" onclick="closeCopyModal()">إغلاق</button>
+        </div>
+        <p id="copyMsg" style="color:#28a745;margin-top:10px;display:none;">✓ تم النسخ!</p>
+    </div>
+</div>
+
+<div id="loginPage" class="login-page">
+    <div class="login-container">
+        <h1>📚 مكتبة الأستاذ</h1>
+        <p class="subtitle">منصة الكتب الإلكترونية لعلم الأحياء</p>
+        <div class="login-tabs">
+            <div class="login-tab active" onclick="switchTab('teacher')">👨‍🏫 دخول الأساتذة</div>
+            <div class="login-tab" onclick="switchTab('student')">🎓 دخول الطلاب</div>
+        </div>
+        <div id="teacherForm" class="login-form active">
+            <div class="form-group"><label>اسم المستخدم</label><input type="text" id="teacherUsername" placeholder="أدخل اسم المستخدم"></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="teacherPassword" placeholder="أدخل كلمة المرور"></div>
+            <button class="login-btn" onclick="teacherLogin()">تسجيل الدخول كأستاذ</button>
+            <div id="teacherError" class="msg msg-error">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+        </div>
+        <div id="studentForm" class="login-form">
+            <div class="form-group"><label>اسم المستخدم</label><input type="text" id="studentUsername" placeholder="أدخل اسم المستخدم"></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="studentPassword" placeholder="أدخل كلمة المرور"></div>
+            <button class="login-btn student-login-btn" onclick="studentLogin()">تسجيل الدخول كطالب</button>
+            <div id="studentError" class="msg msg-error">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+            <div class="register-link">ليس لديك حساب؟ <a onclick="showCodeVerification()">إنشاء حساب جديد</a></div>
+        </div>
+        <div id="codeVerificationForm" class="login-form">
+            <h3 style="text-align:center;color:#28a745;margin-bottom:10px;">🔑 التحقق من الكود</h3>
+            <p style="text-align:center;color:#666;margin-bottom:20px;">أدخل الكود الذي حصلت عليه من أستاذك</p>
+            <div class="form-group"><label>كود التسجيل</label><input type="text" id="registrationCode" placeholder="أدخل الكود" style="text-align:center;font-size:1.2em;letter-spacing:3px;"></div>
+            <button class="login-btn verify-code-btn" onclick="verifyCode()">تحقق من الكود</button>
+            <div id="codeError" class="msg msg-error"></div>
+            <div id="codeSuccess" class="msg msg-success">الكود صحيح! يمكنك الآن إنشاء حسابك.</div>
+            <div class="back-link"><a onclick="showStudentLogin()">العودة إلى تسجيل الدخول</a></div>
+        </div>
+        <div id="registerForm" class="login-form">
+            <h3 style="text-align:center;color:#007bff;margin-bottom:10px;">إنشاء حساب طالب جديد</h3>
+            <p style="text-align:center;color:#666;margin-bottom:20px;">الكود المستخدم: <strong id="usedCode" style="color:#28a745;"></strong></p>
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="regFullName" placeholder="أدخل اسمك الكامل"></div>
+            <div class="form-group"><label>اسم المستخدم</label><input type="text" id="regUsername" placeholder="اختر اسم مستخدم"></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="password" id="regPassword" placeholder="اختر كلمة مرور (6 أحرف على الأقل)"></div>
+            <div class="form-group"><label>تأكيد كلمة المرور</label><input type="password" id="regConfirmPassword" placeholder="أعد كتابة كلمة المرور"></div>
+            <button class="login-btn student-login-btn" onclick="createStudentAccount()">إنشاء الحساب</button>
+            <div id="registerError" class="msg msg-error"></div>
+            <div id="registerSuccess" class="msg msg-success">تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.</div>
+        </div>
+    </div>
+</div>
+
+<div id="mainPage" class="main-page">
+    <div class="top-bar">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <h3>📚 مكتبة أستاذ الأحياء</h3>
+        <div class="user-info-top">
+            <span>👋 <strong id="displayName"></strong></span>
+            <span id="userBadge" class="user-badge"></span>
+            <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header"><h3>القائمة الرئيسية</h3><button class="close-sidebar" onclick="toggleSidebar()">✕</button></div>
+        <ul class="sidebar-menu">
+            <li><a onclick="showPage('grade5')" class="active">الصف الخامس</a></li>
+            <li><a onclick="showPage('grade6')">الصف السادس</a></li>
+            <li><a onclick="showPage('grade7')">الصف السابع</a></li>
+            <li><a onclick="showPage('grade8')">الصف الثامن</a></li>
+            <li><a onclick="showPage('grade9')">الصف التاسع</a></li>
+            <li><a onclick="showPage('grade10')">الصف العاشر</a></li>
+            <li><a onclick="showPage('grade11')">الصف الحادي عشر</a></li>
+            <li><a onclick="showPage('grade12')">الصف الثاني عشر</a></li>
+            <li id="codesMenuItem" style="display:none;"><a onclick="showPage('codes')" class="codes-link">🔑 إدارة الأكواد</a></li>
+        </ul>
+    </div>
+    <div class="main-content" id="mainContent"></div>
+</div>
+
+<div id="bookReader" class="book-reader-overlay">
+    <div class="reader-toolbar">
+        <h3 id="readerBookTitle">📖 عنوان الكتاب</h3>
+        <div class="reader-tools">
+            <span class="page-info" id="pageInfo">صفحة 1</span>
+            <button class="btn-zoom" onclick="zoomOut()">🔍-</button>
+            <button class="btn-zoom" onclick="zoomIn()">🔍+</button>
+            <button class="btn-close" onclick="closeReader()">✕ إغلاق</button>
+        </div>
+    </div>
+    <div class="reader-container" id="readerContainer">
+        <button class="nav-btn nav-prev" onclick="prevPage()" id="prevBtn">◀</button>
+        <div class="page-wrapper">
+            <div class="watermark-overlay"><div class="watermark-text">© جميع الحقوق محفوظة - للمشاهدة فقط</div></div>
+            <img class="page-image" id="pageImage" src="" alt="صفحة الكتاب">
+        </div>
+        <button class="nav-btn nav-next" onclick="nextPage()" id="nextBtn">▶</button>
+    </div>
+    <div class="reader-progress">
+        <span id="progressStart">1</span>
+        <input type="range" class="progress-slider" id="progressSlider" min="1" max="1" value="1" oninput="goToPage(this.value)">
+        <span id="progressEnd">1</span>
+    </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const DEFAULT_TEACHER = {username:'teacher',password:'bio2024secure',name:'أستاذ الأحياء',role:'teacher'};
+function getData(key){return JSON.parse(localStorage.getItem(key)||'[]')}
+function saveData(key,data){localStorage.setItem(key,JSON.stringify(data))}
+(function(){let t=getData('teachers');if(!t.find(x=>x.username==='teacher')){t.push(DEFAULT_TEACHER);saveData('teachers',t)}})();
+
+let currentUser=JSON.parse(localStorage.getItem('current_user')||'null');
+let isTeacher=currentUser?.role==='teacher';
+let verifiedCode=null;
+let pdfDoc=null,currentPage=1,totalPages=1,currentZoom=1;
+let lastGeneratedCode='';
+
+function init(){if(currentUser&&(currentUser.role==='teacher'||currentUser.role==='student'))showMainPage()}
+
+function switchTab(tab){
+    document.querySelectorAll('.login-tab').forEach(x=>x.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.login-form').forEach(x=>x.classList.remove('active'));
+    document.getElementById(tab==='teacher'?'teacherForm':'studentForm').classList.add('active');
+    document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
+}
+function showStudentLogin(){
+    document.querySelectorAll('.login-form').forEach(x=>x.classList.remove('active'));
+    document.getElementById('studentForm').classList.add('active');
+    document.querySelectorAll('.login-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.login-tab')[1].classList.add('active');
+    document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
+    verifiedCode=null;
+}
+function showCodeVerification(){
+    document.querySelectorAll('.login-form').forEach(x=>x.classList.remove('active'));
+    document.getElementById('codeVerificationForm').classList.add('active');
+    document.getElementById('registrationCode').value='';
+    document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
+    verifiedCode=null;
+}
+
+function verifyCode(){
+    const ci=document.getElementById('registrationCode').value.trim().toUpperCase();
+    const codes=getData('codes');
+    const ed=document.getElementById('codeError'),sd=document.getElementById('codeSuccess');
+    ed.classList.remove('show');sd.classList.remove('show');
+    if(!ci){ed.textContent='الرجاء إدخال الكود';ed.classList.add('show');return}
+    const idx=codes.findIndex(c=>c.code===ci);
+    if(idx===-1){ed.textContent='الكود غير صحيح';ed.classList.add('show');return}
+    if(codes[idx].max&&codes[idx].used>=codes[idx].max){ed.textContent='تم استخدام الكود الحد الأقصى';ed.classList.add('show');return}
+    verifiedCode=ci;
+    sd.classList.add('show');
+    setTimeout(()=>{
+        document.querySelectorAll('.login-form').forEach(x=>x.classList.remove('active'));
+        document.getElementById('registerForm').classList.add('active');
+        document.getElementById('usedCode').textContent=verifiedCode;
+        document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
+    },1500);
+}
+
+function teacherLogin(){
+    const u=document.getElementById('teacherUsername').value,p=document.getElementById('teacherPassword').value;
+    const t=getData('teachers').find(x=>x.username===u&&x.password===p);
+    if(t){setUser(t);showMainPage()}else{document.getElementById('teacherError').classList.add('show')}
+}
+function studentLogin(){
+    const u=document.getElementById('studentUsername').value,p=document.getElementById('studentPassword').value;
+    const s=getData('students').find(x=>x.username===u&&x.password===p);
+    if(s){setUser(s);showMainPage()}else{document.getElementById('studentError').classList.add('show')}
+}
+function setUser(u){
+    currentUser={username:u.username,name:u.name,role:u.role};
+    localStorage.setItem('current_user',JSON.stringify(currentUser));
+    isTeacher=u.role==='teacher';
+}
+
+function createStudentAccount(){
+    if(!verifiedCode){showMsg('registerError','انتهت صلاحية الكود');return}
+    const fn=document.getElementById('regFullName').value,un=document.getElementById('regUsername').value;
+    const pw=document.getElementById('regPassword').value,cp=document.getElementById('regConfirmPassword').value;
+    if(!fn||!un||!pw||!cp){showMsg('registerError','املأ جميع الحقول');return}
+    if(pw!==cp){showMsg('registerError','كلمة المرور غير متطابقة');return}
+    if(pw.length<6){showMsg('registerError','6 أحرف على الأقل');return}
+    const students=getData('students');
+    if(students.find(s=>s.username===un)){showMsg('registerError','اسم المستخدم موجود');return}
+    const codes=getData('codes');
+    const ci=codes.findIndex(c=>c.code===verifiedCode);
+    if(ci===-1){showMsg('registerError','الكود غير صالح');verifiedCode=null;return}
+    if(codes[ci].max&&codes[ci].used>=codes[ci].max){showMsg('registerError','الكود استنفذ');verifiedCode=null;return}
+    codes[ci].used=(codes[ci].used||0)+1;saveData('codes',codes);
+    students.push({username:un,password:pw,name:fn,role:'student',registerDate:new Date().toLocaleDateString('ar-SA')});
+    saveData('students',students);
+    showMsg('registerSuccess','تم إنشاء الحساب بنجاح!');
+    ['regFullName','regUsername','regPassword','regConfirmPassword'].forEach(id=>document.getElementById(id).value='');
+    verifiedCode=null;
+    setTimeout(showStudentLogin,2000);
+}
+function showMsg(id,text){
+    const el=document.getElementById(id);
+    el.textContent=text;el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function showMainPage(){
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('mainPage').classList.add('active');
+    document.getElementById('displayName').textContent=currentUser.name;
+    const b=document.getElementById('userBadge');
+    b.textContent=isTeacher?'أستاذ':'طالب';
+    b.className='user-badge '+(isTeacher?'badge-teacher':'badge-student');
+    document.getElementById('codesMenuItem').style.display=isTeacher?'block':'none';
+    createAllPages();showPage('grade5');
+}
+function createAllPages(){
+    const mc=document.getElementById('mainContent');
+    const names=['','','','','','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر'];
+    let h='';
+    if(isTeacher){
+        h+=`<div id="codes" class="page"><div class="page-header codes-page-header"><h2>🔑 إدارة الأكواد</h2><p>إنشاء وإدارة أكواد تسجيل الطلاب</p></div>
+        <div class="generate-code-section"><div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
+        <div class="form-group" style="flex:1;min-width:150px;"><label>عدد مرات الاستخدام</label><input type="number" id="maxUses" value="1" min="1" max="100"></div>
+        <button class="btn btn-orange" onclick="generateCode()">🎫 إنشاء كود جديد</button></div></div>
+        <div class="codes-list"><div class="codes-list-header">📋 الأكواد النشطة</div><div id="codesList"></div></div></div>`;
+    }
+    for(let i=5;i<=12;i++){
+        h+=`<div id="grade${i}" class="page"><div class="page-header"><h2>الصف ${names[i]}</h2><p>الكتب والملفات الخاصة بالصف ${names[i]}</p></div>
+        ${isTeacher?`<div class="upload-section"><div class="upload-form"><div class="file-input-wrapper"><input type="file" id="file${i}" accept=".pdf"></div><button class="btn btn-green" onclick="uploadPDF('grade${i}')">رفع الملف</button></div><small style="color:#666;display:block;margin-top:8px;">الحد الأقصى: 1 ميجابايت</small></div>`:''}
+        <div id="books${i}" class="books-grid"></div></div>`;
+    }
+    mc.innerHTML=h;
+}
+
+function generateCode(){
+    if(!isTeacher)return;
+    const max=parseInt(document.getElementById('maxUses').value)||1;
+    let code='';for(let i=0;i<8;i++)code+='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)];
+    const codes=getData('codes');
+    codes.unshift({code:code,max:max,used:0,date:new Date().toLocaleDateString('ar-SA')});
+    saveData('codes',codes);
+    displayCodes();
+    lastGeneratedCode=code;
+    document.getElementById('modalCode').textContent=code;
+    document.getElementById('modalUses').textContent=max;
+    document.getElementById('copyModal').classList.add('active');
+    document.getElementById('copyMsg').style.display='none';
+}
+function copyCodeFromModal(){
+    navigator.clipboard.writeText(lastGeneratedCode).then(()=>{
+        document.getElementById('copyMsg').style.display='block';
+        setTimeout(()=>{document.getElementById('copyMsg').style.display='none'},2000);
+    }).catch(()=>{
+        const input=document.createElement('input');input.value=lastGeneratedCode;
+        document.body.appendChild(input);input.select();document.execCommand('copy');
+        document.body.removeChild(input);
+        document.getElementById('copyMsg').style.display='block';
+        setTimeout(()=>{document.getElementById('copyMsg').style.display='none'},2000);
+    });
+}
+function closeCopyModal(){document.getElementById('copyModal').classList.remove('active')}
+function displayCodes(){
+    const c=document.getElementById('codesList');if(!c)return;
+    const codes=getData('codes');
+    if(!codes.length){c.innerHTML='<div class="no-books">لا توجد أكواد حالياً</div>';return}
+    c.innerHTML=codes.map((cd,i)=>`<div class="code-item">
+        <span class="code-value">${cd.code}</span><span>👥 ${cd.used}/${cd.max}</span>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <button class="btn-copy" onclick="copyExistingCode('${cd.code}',this)">📋 نسخ</button>
+            <button class="delete-btn" onclick="deleteCode(${i})">🗑️</button>
+        </div></div>`).join('');
+}
+function copyExistingCode(code,btn){
+    navigator.clipboard.writeText(code).then(()=>{
+        btn.textContent='✅ تم';btn.classList.add('copied');
+        setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);
+    }).catch(()=>{
+        const input=document.createElement('input');input.value=code;
+        document.body.appendChild(input);input.select();document.execCommand('copy');
+        document.body.removeChild(input);
+        btn.textContent='✅ تم';btn.classList.add('copied');
+        setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);
+    });
+}
+function deleteCode(idx){
+    if(!confirm('حذف الكود؟'))return;
+    const codes=getData('codes');codes.splice(idx,1);saveData('codes',codes);displayCodes();
+}
+
+function uploadPDF(grade){
+    if(!isTeacher)return alert('عذراً، فقط الأساتذة يمكنهم رفع الملفات');
+    const gn=grade.replace('grade',''),fi=document.getElementById('file'+gn);
+    if(!fi||!fi.files[0])return alert('الرجاء اختيار ملف PDF');
+    const file=fi.files[0];
+    if(file.type!=='application/pdf')return alert('الرجاء اختيار ملف PDF فقط');
+    if(file.size>1000000)return alert('الملف كبير جداً. الحد الأقصى 1 ميجابايت');
+    const reader=new FileReader();
+    reader.onload=function(e){
+        const books=getData('books_'+grade);
+        books.unshift({id:Date.now(),title:file.name.replace('.pdf',''),data:e.target.result,uploadDate:new Date().toLocaleDateString('ar-SA'),size:(file.size/1024/1024).toFixed(2)+' MB',uploadedBy:currentUser.name});
+        saveData('books_'+grade,books);
+        fi.value='';displayBooks(grade);
+        alert('✅ تم رفع الملف بنجاح!');
+    };
+    reader.readAsDataURL(file);
+}
+function displayBooks(grade){
+    const container=document.getElementById('books'+grade.replace('grade',''));
+    if(!container)return;
+    const books=getData('books_'+grade);
+    if(!books.length){container.innerHTML='<div class="no-books">لا توجد كتب متاحة حالياً في هذا الصف</div>';return}
+    container.innerHTML=books.map((book,i)=>`<div class="book-card"><div class="book-cover">📗</div>
+        <div class="book-info"><div class="book-title">${book.title}</div>
+        <div class="book-meta">📅 ${book.uploadDate}<br>📏 ${book.size}${book.uploadedBy?'<br>👤 '+book.uploadedBy:''}</div>
+        <div class="book-actions">
+            <button class="read-btn" onclick="openBook('${grade}',${i})">📖 قراءة</button>
+            ${isTeacher?`<button class="delete-btn" onclick="deleteBook('${grade}',${i})">🗑️ حذف</button>`:''}
+        </div></div></div>`).join('');
+}
+function deleteBook(grade,idx){
+    if(!isTeacher||!confirm('هل أنت متأكد من حذف هذا الكتاب؟'))return;
+    const books=getData('books_'+grade);
+    books.splice(idx,1);
+    saveData('books_'+grade,books);
+    displayBooks(grade);
+}
+
+// ==================== قارئ الكتاب ====================
+function openBook(grade, idx) {
+    const books = getData('books_' + grade), book = books[idx];
+    if (!book) return;
+    document.getElementById('readerBookTitle').textContent = '📖 ' + book.title;
+    document.getElementById('bookReader').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    currentPage = 1; currentZoom = 1;
+    try {
+        const d = book.data.includes(',') ? book.data.split(',')[1] : book.data;
+        pdfjsLib.getDocument({ data: atob(d) }).promise.then(function(pdf) {
+            pdfDoc = pdf; totalPages = pdf.numPages;
+            document.getElementById('progressSlider').max = totalPages;
+            document.getElementById('progressEnd').textContent = totalPages;
+            renderPage(1);
+        }).catch(function() { alert('خطأ في فتح الكتاب'); closeReader(); });
+    } catch (e) { alert('خطأ في فتح الكتاب'); closeReader(); }
+}
+
+function renderPage(n) {
+    if (!pdfDoc) return;
+    currentPage = n;
+    var zoomPercent = Math.round(currentZoom * 100);
+    document.getElementById('pageInfo').textContent = 'صفحة ' + n + ' من ' + totalPages + ' (' + zoomPercent + '%)';
+    document.getElementById('progressSlider').value = n;
+    document.getElementById('progressStart').textContent = n;
+    document.getElementById('prevBtn').disabled = n <= 1;
+    document.getElementById('nextBtn').disabled = n >= totalPages;
+    
+    pdfDoc.getPage(n).then(function(page) {
+        var scale = 1.5 * currentZoom;
+        var vp = page.getViewport({ scale: scale });
+        var canvas = document.createElement('canvas');
+        canvas.height = vp.height; canvas.width = vp.width;
+        var ctx = canvas.getContext('2d');
+        
+        return page.render({ canvasContext: ctx, viewport: vp }).promise.then(function() {
+            var img = document.getElementById('pageImage');
+            img.src = canvas.toDataURL('image/jpeg', 0.9);
+            img.style.width = vp.width + 'px';
+            img.style.height = vp.height + 'px';
+            img.style.maxWidth = 'none';
+            img.style.maxHeight = 'none';
+            
+            // توسيط الصفحة بعد التحميل
+            var container = document.getElementById('readerContainer');
+            container.scrollLeft = (img.width - container.clientWidth) / 2;
+            container.scrollTop = (img.height - container.clientHeight) / 2;
+        });
+    });
+}
+
+function nextPage() { if (currentPage < totalPages) renderPage(currentPage + 1); }
+function prevPage() { if (currentPage > 1) renderPage(currentPage - 1); }
+function goToPage(n) { renderPage(parseInt(n)); }
+
+function zoomIn() {
+    if (!pdfDoc) return;
+    if (currentZoom >= 3) return;
+    currentZoom = Math.min(currentZoom * 2, 3);
+    renderPage(currentPage);
+}
+
+function zoomOut() {
+    if (!pdfDoc) return;
+    if (currentZoom <= 0.5) return;
+    currentZoom = Math.max(currentZoom / 2, 0.5);
+    renderPage(currentPage);
+}
+
+function closeReader() {
+    document.getElementById('bookReader').classList.remove('active');
+    document.body.style.overflow = '';
+    pdfDoc = null;
+}
+
+// ==================== سحب الصفحة داخل القارئ ====================
+let isDragging = false, startX, startY, scrollLeft, scrollTop;
+const readerContainer = document.getElementById('readerContainer');
+
+readerContainer.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    startX = e.pageX - this.offsetLeft;
+    startY = e.pageY - this.offsetTop;
+    scrollLeft = this.scrollLeft;
+    scrollTop = this.scrollTop;
+});
+
+readerContainer.addEventListener('mouseleave', function() { isDragging = false; });
+readerContainer.addEventListener('mouseup', function() { isDragging = false; });
+
+readerContainer.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - this.offsetLeft;
+    const y = e.pageY - this.offsetTop;
+    this.scrollLeft = scrollLeft - (x - startX) * 2;
+    this.scrollTop = scrollTop - (y - startY) * 2;
+});
+
+readerContainer.addEventListener('dragstart', function(e) { e.preventDefault(); });
+
+document.addEventListener('keydown',function(e){
+    if(!document.getElementById('bookReader').classList.contains('active'))return;
+    if(e.key==='ArrowRight'){e.preventDefault();nextPage();}
+    if(e.key==='ArrowLeft'){e.preventDefault();prevPage();}
+    if(e.key==='Escape')closeReader();
+});
+document.addEventListener('contextmenu',function(e){
+    if(document.getElementById('bookReader').classList.contains('active'))e.preventDefault();
+});
+
+function showPage(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const pg=document.getElementById(name);if(pg)pg.classList.add('active');
+    document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active'));
+    if(event&&event.target)event.target.classList.add('active');
+    if(name==='codes')displayCodes();
+    else if(name.startsWith('grade'))displayBooks(name);
+    if(window.innerWidth<768)toggleSidebar();
+}
+function toggleSidebar(){
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function logout(){
+    currentUser=null;isTeacher=false;verifiedCode=null;
+    localStorage.removeItem('current_user');
+    document.getElementById('loginPage').style.display='flex';
+    document.getElementById('mainPage').classList.remove('active');
+    ['teacherUsername','teacherPassword','studentUsername','studentPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.querySelectorAll('.msg').forEach(m=>m.classList.remove('show'));
+}
+
+document.getElementById('copyModal').addEventListener('click',function(e){if(e.target===this)closeCopyModal();});
+
+init();
+</script>
+</body>
+</html>
