@@ -3,92 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة أستاذ الأحياء - الكتب الإلكترونية</title>
+    <title>مكتبة الأستاذ - الإلكترونية</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
         body{background:#f0f2f5;min-height:100vh}
+        
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        @keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+        @keyframes bellRing{0%,100%{transform:rotate(0)}10%,30%,50%,70%,90%{transform:rotate(15deg)}20%,40%,60%,80%{transform:rotate(-15deg)}}
+        
         .login-page{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);padding:15px}
-        .login-container{background:#fff;padding:clamp(20px,4vw,40px);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:450px;max-width:95%}
+        .login-container{background:#fff;padding:clamp(20px,4vw,40px);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:450px;max-width:95%;animation:fadeInUp .6s ease-out}
         .login-container h1{text-align:center;color:#2d5a27;margin-bottom:5px;font-size:clamp(1.3em,4vw,2em)}
         .subtitle{text-align:center;color:#666;margin-bottom:clamp(15px,3vw,30px);font-size:clamp(.8em,2vw,.9em)}
         .login-tabs{display:flex;gap:8px;margin-bottom:clamp(15px,3vw,20px)}
         .login-tab{flex:1;padding:clamp(8px,2vw,12px);border:2px solid #2d5a27;background:#fff;color:#2d5a27;border-radius:10px;font-size:clamp(13px,2vw,16px);font-weight:700;cursor:pointer;text-align:center;transition:.3s}
         .login-tab.active{background:#2d5a27;color:#fff}
-        .login-form{display:none}.login-form.active{display:block}
+        .login-tab:hover{background:#2d5a27;color:#fff;transform:translateY(-2px)}
+        .login-form{display:none}.login-form.active{display:block;animation:fadeIn .3s ease-out}
         .form-group{margin-bottom:clamp(12px,2vw,20px)}
         .form-group label{display:block;margin-bottom:5px;font-weight:700;color:#333;font-size:clamp(.9em,2vw,1.1em)}
-        .form-group input{width:100%;padding:clamp(10px,2vw,15px);border:2px solid #e0e0e0;border-radius:10px;font-size:clamp(14px,2vw,16px);transition:.3s}
-        .form-group input:focus{outline:none;border-color:#2d5a27;box-shadow:0 0 0 3px rgba(45,90,39,.1)}
+        .form-group input, .form-group select{width:100%;padding:clamp(10px,2vw,15px);border:2px solid #e0e0e0;border-radius:10px;font-size:clamp(14px,2vw,16px);transition:.3s}
+        .form-group input:focus, .form-group select:focus{outline:none;border-color:#2d5a27;box-shadow:0 0 0 3px rgba(45,90,39,.1)}
         .login-btn{width:100%;padding:clamp(10px,2vw,15px);background:#2d5a27;color:#fff;border:none;border-radius:10px;font-size:clamp(15px,2.5vw,18px);font-weight:700;cursor:pointer;margin-top:5px;transition:.3s}
         .login-btn:hover{background:#1a3a15;transform:translateY(-2px);box-shadow:0 5px 20px rgba(0,0,0,.3)}
         .student-login-btn{background:#007bff}.student-login-btn:hover{background:#0056b3}
         .verify-code-btn{background:#28a745}.verify-code-btn:hover{background:#1e7e34}
-        .msg{padding:8px;border-radius:6px;margin-top:10px;text-align:center;display:none;font-size:clamp(.8em,1.5vw,.9em)}
+        .msg{padding:8px;border-radius:6px;margin-top:10px;text-align:center;display:none;font-size:clamp(.8em,1.5vw,.9em);animation:fadeIn .3s ease-out}
         .msg-error{background:#f8d7da;color:#721c24}.msg-success{background:#d4edda;color:#155724}.msg.show{display:block}
         .register-link,.back-link{text-align:center;margin-top:15px;font-size:clamp(.8em,1.5vw,.9em)}
         .register-link a,.back-link a{color:#007bff;cursor:pointer;text-decoration:underline}
         .main-page{display:none;min-height:100vh}.main-page.active{display:flex}
         .top-bar{position:fixed;top:0;left:0;right:0;background:#fff;padding:clamp(8px,1.5vw,15px) clamp(10px,2vw,20px);box-shadow:0 2px 10px rgba(0,0,0,.1);z-index:1000;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
         .top-bar h3{font-size:clamp(.9em,2.5vw,1.3em)}
-        .menu-btn{background:#2d5a27;color:#fff;border:none;width:clamp(35px,6vw,45px);height:clamp(35px,6vw,45px);border-radius:10px;font-size:clamp(18px,3vw,24px);cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .menu-btn{background:#2d5a27;color:#fff;border:none;width:clamp(35px,6vw,45px);height:clamp(35px,6vw,45px);border-radius:10px;font-size:clamp(18px,3vw,24px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s}
+        .menu-btn:hover{background:#1a3a15;transform:scale(1.1)}
         .user-info-top{display:flex;align-items:center;gap:clamp(5px,1vw,15px);font-size:clamp(.75em,1.5vw,.9em);flex-wrap:wrap}
         .user-badge{padding:4px 12px;border-radius:20px;font-size:.8em;font-weight:700;white-space:nowrap}
         .badge-teacher{background:#d4edda;color:#155724}.badge-student{background:#cce5ff;color:#004085}
-        .logout-btn{padding:clamp(6px,1vw,10px) clamp(12px,2vw,20px);background:#dc3545;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:clamp(.75em,1.5vw,.9em);white-space:nowrap}
+        .logout-btn{padding:clamp(6px,1vw,10px) clamp(12px,2vw,20px);background:#dc3545;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:clamp(.75em,1.5vw,.9em);white-space:nowrap;transition:.3s}
+        .logout-btn:hover{background:#c82333;transform:translateY(-2px)}
+        
+        .notification-icon{position:relative;cursor:pointer;font-size:1.5em;margin-left:15px;color:#2d5a27;transition:.3s}
+        .notification-icon:hover{color:#1a3a15;animation:bellRing .5s ease-in-out}
+        .badge-notify{position:absolute;top:-8px;right:-8px;background:red;color:#fff;border-radius:50%;padding:2px 6px;font-size:.6em;font-weight:700;display:none}
+        .notifications-dropdown{position:absolute;top:60px;left:20px;background:#fff;width:350px;max-height:400px;overflow-y:auto;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);z-index:1100;display:none;animation:fadeIn .3s ease-out}
+        .notifications-dropdown.active{display:block}
+        .notifications-dropdown h4{padding:15px;background:#2d5a27;color:#fff;margin:0;text-align:center}
+        .notification-item{padding:15px;border-bottom:1px solid #eee;text-align:right;transition:.2s}
+        .notification-item:hover{background:#f0f8f0}
+        .notification-item small{color:#888;display:block;margin-top:5px}
+        .notification-item button{background:#dc3545;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:.7em;float:left;margin-top:5px}
+
         .sidebar{position:fixed;top:0;right:max(-300px,-80vw);width:min(300px,80vw);height:100vh;background:#fff;box-shadow:-5px 0 20px rgba(0,0,0,.2);z-index:1001;transition:right .3s;overflow-y:auto}
         .sidebar.active{right:0}
-        .sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:none}
+        .sidebar-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:none;animation:fadeIn .3s ease-out}
         .sidebar-overlay.active{display:block}
         .sidebar-header{padding:clamp(12px,2vw,20px);background:#2d5a27;color:#fff;display:flex;justify-content:space-between;align-items:center}
-        .close-sidebar{background:none;border:none;color:#fff;font-size:clamp(18px,3vw,24px);cursor:pointer}
+        .close-sidebar{background:none;border:none;color:#fff;font-size:clamp(18px,3vw,24px);cursor:pointer;transition:.3s}
+        .close-sidebar:hover{transform:rotate(90deg)}
         .sidebar-menu{list-style:none;padding:clamp(8px,1.5vw,20px) 0}
         .sidebar-menu a{display:block;padding:clamp(10px,2vw,15px) clamp(15px,3vw,25px);color:#333;text-decoration:none;font-size:clamp(.9em,2vw,1.1em);border-right:4px solid transparent;cursor:pointer;transition:.3s}
-        .sidebar-menu a:hover,.sidebar-menu a.active{background:#f0f8f0;border-right-color:#2d5a27;color:#2d5a27}
-        .sidebar-menu a.codes-link{border-right-color:#ffc107}
-        .sidebar-menu a.codes-link:hover,.sidebar-menu a.codes-link.active{background:#fff9e6;border-right-color:#ffc107;color:#856404}
+        .sidebar-menu a:hover,.sidebar-menu a.active{background:#f0f8f0;border-right-color:#2d5a27;color:#2d5a27;padding-right:30px}
+        .sidebar-menu a.special-link{border-right-color:#ffc107}
+        .sidebar-menu a.special-link:hover,.sidebar-menu a.special-link.active{background:#fff9e6;border-right-color:#ffc107;color:#856404}
         .main-content{flex:1;margin-top:clamp(55px,10vw,80px);padding:clamp(10px,2vw,20px)}
-        .page{display:none}.page.active{display:block}
-        .page-header{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:clamp(15px,3vw,25px);box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .page{display:none}.page.active{display:block;animation:fadeInUp .5s ease-out}
+        .page-header{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
         .page-header h2{color:#2d5a27;font-size:clamp(1.2em,3vw,2em);margin-bottom:5px}
-        .codes-page-header{background:linear-gradient(135deg,#ffc107,#ff9800)}.codes-page-header h2,.codes-page-header p{color:#fff}
-        .generate-code-section,.upload-section{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:clamp(15px,3vw,25px);box-shadow:0 2px 10px rgba(0,0,0,.1)}
-        .generate-code-section{border-right:4px solid #ffc107}.upload-section{border-right:4px solid #2d5a27}
+        .special-header{background:linear-gradient(135deg,#ffc107,#ff9800)}.special-header h2,.special-header p{color:#fff}
+        .generate-code-section,.upload-section,.meeting-section{background:#fff;padding:clamp(15px,3vw,25px);border-radius:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .generate-code-section{border-right:4px solid #ffc107}.upload-section{border-right:4px solid #2d5a27}.meeting-section{border-right:4px solid #007bff}
         .upload-form{display:flex;gap:clamp(8px,1.5vw,15px);align-items:flex-end;flex-wrap:wrap}
         .file-input-wrapper{flex:1;min-width:min(250px,60vw)}
         .file-input-wrapper input{width:100%;padding:clamp(8px,1.5vw,12px);border:2px solid #ddd;border-radius:8px;font-size:clamp(13px,2vw,14px)}
         .btn{padding:clamp(8px,1.5vw,12px) clamp(15px,3vw,30px);border:none;border-radius:8px;font-size:clamp(13px,2vw,16px);font-weight:700;cursor:pointer;color:#fff;transition:.3s;white-space:nowrap}
-        .btn-green{background:#2d5a27}.btn-green:hover{background:#1a3a15}
-        .btn-orange{background:#ffc107;color:#333}.btn-orange:hover{background:#ff9800;color:#fff}
+        .btn-green{background:#2d5a27}.btn-green:hover{background:#1a3a15;transform:translateY(-2px)}
+        .btn-orange{background:#ffc107;color:#333}.btn-orange:hover{background:#ff9800;color:#fff;transform:translateY(-2px)}
+        .btn-blue{background:#007bff}.btn-blue:hover{background:#0056b3}
         .btn-copy{background:#17a2b8;color:#fff;padding:8px 15px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;transition:.3s;white-space:nowrap}
         .btn-copy:hover{background:#138496}.btn-copy.copied{background:#28a745}
+        .section-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
+        .section-tab{flex:1;min-width:80px;padding:clamp(8px,1.5vw,12px) clamp(6px,1vw,10px);border:2px solid #2d5a27;background:#fff;color:#2d5a27;border-radius:8px;font-size:clamp(11px,2vw,14px);font-weight:700;cursor:pointer;text-align:center;transition:.3s}
+        .section-tab.active{background:#2d5a27;color:#fff;animation:pulse .3s ease-out}
+        .section-tab:hover{background:#2d5a27;color:#fff;transform:translateY(-2px)}
+        .section-content{display:none}.section-content.active{display:block;animation:slideInRight .3s ease-out}
         .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,85vw),1fr));gap:clamp(12px,2vw,20px)}
-        .book-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 3px 15px rgba(0,0,0,.1);transition:.3s}
-        .book-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
-        .book-cover{background:linear-gradient(135deg,#2d5a27,#4a8f3f);color:#fff;padding:clamp(25px,5vw,40px);text-align:center;font-size:clamp(2em,5vw,3em)}
+        .book-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 3px 15px rgba(0,0,0,.1);transition:.3s;animation:scaleIn .4s ease-out}
+        .book-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
+        .book-cover{background:linear-gradient(135deg,#2d5a27,#4a8f3f);color:#fff;padding:clamp(25px,5vw,40px);text-align:center;font-size:clamp(2em,5vw,3em);transition:.3s}
+        .meeting-card .book-cover{background:linear-gradient(135deg,#007bff,#00a8ff)}
         .book-info{padding:clamp(12px,2vw,20px)}
         .book-title{font-size:clamp(1em,2vw,1.2em);font-weight:700;margin-bottom:5px;color:#333}
         .book-meta{color:#666;font-size:clamp(.75em,1.5vw,.9em);margin-bottom:10px}
         .book-actions{display:flex;gap:8px;flex-wrap:wrap}
         .read-btn{flex:1;min-width:80px;padding:clamp(8px,1.5vw,10px);background:#007bff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;text-align:center;font-size:clamp(.8em,1.5vw,.9em);transition:.3s}
-        .read-btn:hover{background:#0056b3}
+        .read-btn:hover{background:#0056b3;transform:translateY(-2px)}
+        .join-btn{background:#28a745}.join-btn:hover{background:#1e7e34}
         .delete-btn{padding:clamp(8px,1.5vw,10px) clamp(10px,2vw,15px);background:#dc3545;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:clamp(.8em,1.5vw,.9em);transition:.3s}
-        .delete-btn:hover{background:#c82333}
+        .delete-btn:hover{background:#c82333;transform:translateY(-2px)}
+        .visibility-badge{font-size:.7em;padding:3px 8px;border-radius:12px;margin-right:5px}
+        .visibility-all{background:#d4edda;color:#155724}
+        .visibility-restricted{background:#fff3cd;color:#856404}
+
         .book-reader-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:2000}
-        .book-reader-overlay.active{display:flex;flex-direction:column}
+        .book-reader-overlay.active{display:flex;flex-direction:column;animation:fadeIn .3s ease-out}
         .reader-toolbar{background:#2d2d2d;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;color:#fff;z-index:2001;flex-wrap:wrap;gap:8px}
         .reader-toolbar h3{font-size:clamp(.85em,2vw,1.1em)}
         .reader-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
         .reader-tools button{padding:6px 12px;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;transition:.3s}
-        .btn-zoom{background:#555;color:#fff}.btn-zoom:hover{background:#777}
-        .btn-close{background:#dc3545;color:#fff}.btn-close:hover{background:#c82333}
+        .btn-zoom{background:#555;color:#fff}.btn-zoom:hover{background:#777;transform:scale(1.1)}
+        .btn-close{background:#dc3545;color:#fff}.btn-close:hover{background:#c82333;transform:scale(1.1)}
         .page-info{color:#ccc;font-size:.9em;white-space:nowrap}
         .reader-container{flex:1;display:flex;justify-content:flex-start;align-items:flex-start;position:relative;overflow:auto;background:#1a1a1a;cursor:grab}
         .reader-container:active{cursor:grabbing}
         .page-wrapper{display:flex;justify-content:center;align-items:center;min-width:100%;min-height:100%}
         .page-image{width:auto;height:auto;box-shadow:0 5px 30px rgba(0,0,0,.5);border-radius:3px;user-select:none;pointer-events:none}
-        .watermark-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);pointer-events:none;z-index:10;opacity:.08;white-space:nowrap}
-        .watermark-text{color:red;font-size:clamp(2em,8vw,5em);font-weight:700}
         .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);color:#fff;border:none;width:40px;height:70px;font-size:22px;cursor:pointer;z-index:20;border-radius:5px;transition:.3s}
         .nav-btn:hover{background:rgba(255,255,255,.4)}.nav-prev{left:10px}.nav-next{right:10px}
         .nav-btn:disabled{opacity:.3;cursor:not-allowed}
@@ -97,33 +131,52 @@
         .progress-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#007bff;cursor:pointer}
         .codes-list{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.1)}
         .codes-list-header{background:#f8f9fa;padding:12px 15px;font-weight:700}
-        .code-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:8px}
+        .code-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:8px;animation:fadeIn .3s ease-out}
         .code-value{font-family:'Courier New',monospace;font-size:1.1em;font-weight:700;color:#2d5a27;background:#f0f8f0;padding:4px 12px;border-radius:5px;letter-spacing:2px}
         .no-books{text-align:center;color:#666;padding:clamp(25px,5vw,40px);background:#fff;border-radius:15px;font-size:clamp(.9em,2vw,1.2em)}
         .copy-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:3000;justify-content:center;align-items:center}
-        .copy-modal.active{display:flex}
-        .copy-modal-content{background:#fff;padding:clamp(20px,4vw,30px);border-radius:15px;text-align:center;width:min(400px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+        .copy-modal.active{display:flex;animation:fadeIn .3s ease-out}
+        .copy-modal-content{background:#fff;padding:clamp(20px,4vw,30px);border-radius:15px;text-align:center;width:min(400px,90vw);box-shadow:0 20px 60px rgba(0,0,0,.3);animation:fadeInUp .4s ease-out}
         .copy-modal-content h3{color:#2d5a27;margin-bottom:10px}
         .copy-code-display{background:#f0f8f0;padding:15px;border-radius:10px;font-size:clamp(1.2em,3vw,1.8em);font-weight:700;color:#2d5a27;letter-spacing:3px;margin:15px 0;font-family:'Courier New',monospace;word-break:break-all}
         .copy-modal-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
         .copy-modal-buttons button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;transition:.3s}
         .btn-primary{background:#007bff;color:#fff}.btn-primary:hover{background:#0056b3}
         .btn-secondary{background:#6c757d;color:#fff}.btn-secondary:hover{background:#545b62}
+        .student-select{margin-top:10px;padding:10px;border:1px solid #ddd;border-radius:8px;max-height:150px;overflow-y:auto;display:none}
+        .student-select label{display:block;margin:5px 0;font-weight:400}
+        .student-select input{margin-left:8px}
+        
+        .video-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:4000;justify-content:center;align-items:center}
+        .video-modal.active{display:flex;animation:fadeIn .3s ease-out}
+        .video-modal-content{width:95%;max-width:900px;position:relative}
+        .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px}
+        .video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px}
+        .close-video{position:absolute;top:-45px;right:0;background:#dc3545;color:#fff;border:none;padding:10px 25px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;z-index:10}
+        .close-video:hover{background:#c82333}
     </style>
 </head>
 <body>
 
 <div id="copyModal" class="copy-modal">
     <div class="copy-modal-content">
-        <h3>✅ تم إنشاء الكود بنجاح!</h3>
-        <p style="color:#666;margin-bottom:5px;">الكود الجديد:</p>
+        <h3>✅ تم بنجاح!</h3>
+        <p id="copyModalText" style="color:#666;margin-bottom:5px;"></p>
         <div class="copy-code-display" id="modalCode">XXXXXXXX</div>
-        <p style="color:#666;font-size:.85em;margin-bottom:10px;">عدد الاستخدامات: <strong id="modalUses">1</strong></p>
         <div class="copy-modal-buttons">
-            <button class="btn-primary" onclick="copyCodeFromModal()">📋 نسخ الكود</button>
+            <button class="btn-primary" onclick="copyCodeFromModal()">📋 نسخ</button>
             <button class="btn-secondary" onclick="closeCopyModal()">إغلاق</button>
         </div>
         <p id="copyMsg" style="color:#28a745;margin-top:10px;display:none;">✓ تم النسخ!</p>
+    </div>
+</div>
+
+<div id="videoModal" class="video-modal">
+    <div class="video-modal-content">
+        <button class="close-video" onclick="closeVideoModal()">✕ إغلاق</button>
+        <div class="video-wrapper">
+            <iframe id="videoIframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
     </div>
 </div>
 
@@ -174,8 +227,15 @@
 <div id="mainPage" class="main-page">
     <div class="top-bar">
         <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-        <h3>📚 مكتبة أستاذ الأحياء</h3>
+        <h3>📚 مكتبة الأستاذ</h3>
         <div class="user-info-top">
+            <div style="display:flex;align-items:center;">
+                <span class="notification-icon" onclick="toggleNotifications()">🔔<span id="notificationBadge" class="badge-notify">0</span></span>
+                <div id="notificationsDropdown" class="notifications-dropdown">
+                    <h4>🔔 الإشعارات</h4>
+                    <div id="notificationsList"><p style="padding:20px;text-align:center;color:#666;">لا توجد إشعارات</p></div>
+                </div>
+            </div>
             <span>👋 <strong id="displayName"></strong></span>
             <span id="userBadge" class="user-badge"></span>
             <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
@@ -193,7 +253,8 @@
             <li><a onclick="showPage('grade10')">الصف العاشر</a></li>
             <li><a onclick="showPage('grade11')">الصف الحادي عشر</a></li>
             <li><a onclick="showPage('grade12')">الصف الثاني عشر</a></li>
-            <li id="codesMenuItem" style="display:none;"><a onclick="showPage('codes')" class="codes-link">🔑 إدارة الأكواد</a></li>
+            <li id="meetingManagerLink" style="display:none;"><a onclick="showPage('meetingManager')" class="special-link">🎥 مركز التحكم</a></li>
+            <li id="codesMenuItem" style="display:none;"><a onclick="showPage('codes')" class="special-link">🔑 إدارة الأكواد</a></li>
         </ul>
     </div>
     <div class="main-content" id="mainContent"></div>
@@ -212,7 +273,6 @@
     <div class="reader-container" id="readerContainer">
         <button class="nav-btn nav-prev" onclick="prevPage()" id="prevBtn">◀</button>
         <div class="page-wrapper">
-            <div class="watermark-overlay"><div class="watermark-text">© جميع الحقوق محفوظة - للمشاهدة فقط</div></div>
             <img class="page-image" id="pageImage" src="" alt="صفحة الكتاب">
         </div>
         <button class="nav-btn nav-next" onclick="nextPage()" id="nextBtn">▶</button>
@@ -237,9 +297,82 @@ let isTeacher=currentUser?.role==='teacher';
 let verifiedCode=null;
 let pdfDoc=null,currentPage=1,totalPages=1,currentZoom=1;
 let lastGeneratedCode='';
+let currentSection = {};
+
+// ============ نظام الإشعارات ============
+function addNotification(message, type = 'info') {
+    const notifications = getData('notifications');
+    notifications.unshift({id: Date.now(),message: message,type: type,date: new Date().toLocaleString('ar-SA'),read: false});
+    if (notifications.length > 50) notifications.pop();
+    saveData('notifications', notifications);
+    updateNotificationBadge();
+}
+function updateNotificationBadge() {
+    const notifications = getData('notifications');
+    const unread = notifications.filter(n => !n.read).length;
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {badge.textContent = unread;badge.style.display = unread > 0 ? 'block' : 'none';}
+}
+function toggleNotifications() {
+    const dropdown = document.getElementById('notificationsDropdown');
+    dropdown.classList.toggle('active');
+    if (dropdown.classList.contains('active')) displayNotifications();
+}
+function displayNotifications() {
+    const list = document.getElementById('notificationsList');
+    const notifications = getData('notifications');
+    if (notifications.length === 0) {list.innerHTML = '<p style="padding:20px;text-align:center;color:#666;">لا توجد إشعارات</p>';return;}
+    list.innerHTML = notifications.map(n => `<div class="notification-item" style="${n.read ? 'opacity:0.6;' : ''}">${n.message}<small>${n.date}</small><button onclick="deleteNotification(${n.id})">✕</button></div>`).join('');
+    notifications.forEach(n => n.read = true);
+    saveData('notifications', notifications);
+    updateNotificationBadge();
+}
+function deleteNotification(id) {
+    let notifications = getData('notifications');
+    notifications = notifications.filter(n => n.id !== id);
+    saveData('notifications', notifications);
+    displayNotifications();
+    updateNotificationBadge();
+}
+
+// ============ مشغل الفيديو ============
+function openVideoModal(url) {
+    if (!url || url === 'undefined' || url === 'null') {
+        alert('رابط الفيديو غير صحيح');
+        return;
+    }
+    
+    let embedUrl = url;
+    if (!embedUrl.includes('youtube.com/embed/')) {
+        const videoId = extractYouTubeID(url);
+        if (videoId) {
+            embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=0&rel=0';
+        }
+    } else {
+        embedUrl += '?autoplay=0&rel=0';
+    }
+    
+    const iframe = document.getElementById('videoIframe');
+    iframe.src = embedUrl;
+    document.getElementById('videoModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal(e) {
+    if (e && e.target !== document.getElementById('videoModal')) return;
+    const iframe = document.getElementById('videoIframe');
+    iframe.src = '';
+    document.getElementById('videoModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('videoModal').classList.contains('active')) {
+        closeVideoModal();
+    }
+});
 
 function init(){if(currentUser&&(currentUser.role==='teacher'||currentUser.role==='student'))showMainPage()}
-
 function switchTab(tab){
     document.querySelectorAll('.login-tab').forEach(x=>x.classList.remove('active'));
     event.target.classList.add('active');
@@ -262,7 +395,6 @@ function showCodeVerification(){
     document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
     verifiedCode=null;
 }
-
 function verifyCode(){
     const ci=document.getElementById('registrationCode').value.trim().toUpperCase();
     const codes=getData('codes');
@@ -272,8 +404,7 @@ function verifyCode(){
     const idx=codes.findIndex(c=>c.code===ci);
     if(idx===-1){ed.textContent='الكود غير صحيح';ed.classList.add('show');return}
     if(codes[idx].max&&codes[idx].used>=codes[idx].max){ed.textContent='تم استخدام الكود الحد الأقصى';ed.classList.add('show');return}
-    verifiedCode=ci;
-    sd.classList.add('show');
+    verifiedCode=ci;sd.classList.add('show');
     setTimeout(()=>{
         document.querySelectorAll('.login-form').forEach(x=>x.classList.remove('active'));
         document.getElementById('registerForm').classList.add('active');
@@ -281,7 +412,6 @@ function verifyCode(){
         document.querySelectorAll('.msg').forEach(x=>x.classList.remove('show'));
     },1500);
 }
-
 function teacherLogin(){
     const u=document.getElementById('teacherUsername').value,p=document.getElementById('teacherPassword').value;
     const t=getData('teachers').find(x=>x.username===u&&x.password===p);
@@ -292,12 +422,7 @@ function studentLogin(){
     const s=getData('students').find(x=>x.username===u&&x.password===p);
     if(s){setUser(s);showMainPage()}else{document.getElementById('studentError').classList.add('show')}
 }
-function setUser(u){
-    currentUser={username:u.username,name:u.name,role:u.role};
-    localStorage.setItem('current_user',JSON.stringify(currentUser));
-    isTeacher=u.role==='teacher';
-}
-
+function setUser(u){currentUser={username:u.username,name:u.name,role:u.role};localStorage.setItem('current_user',JSON.stringify(currentUser));isTeacher=u.role==='teacher';}
 function createStudentAccount(){
     if(!verifiedCode){showMsg('registerError','انتهت صلاحية الكود');return}
     const fn=document.getElementById('regFullName').value,un=document.getElementById('regUsername').value;
@@ -315,15 +440,11 @@ function createStudentAccount(){
     students.push({username:un,password:pw,name:fn,role:'student',registerDate:new Date().toLocaleDateString('ar-SA')});
     saveData('students',students);
     showMsg('registerSuccess','تم إنشاء الحساب بنجاح!');
+    addNotification(`🆕 انضم طالب جديد: ${fn}`, 'info');
     ['regFullName','regUsername','regPassword','regConfirmPassword'].forEach(id=>document.getElementById(id).value='');
-    verifiedCode=null;
-    setTimeout(showStudentLogin,2000);
+    verifiedCode=null;setTimeout(showStudentLogin,2000);
 }
-function showMsg(id,text){
-    const el=document.getElementById(id);
-    el.textContent=text;el.classList.add('show');
-    setTimeout(()=>el.classList.remove('show'),3000);
-}
+function showMsg(id,text){const el=document.getElementById(id);el.textContent=text;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 function showMainPage(){
     document.getElementById('loginPage').style.display='none';
@@ -333,256 +454,339 @@ function showMainPage(){
     b.textContent=isTeacher?'أستاذ':'طالب';
     b.className='user-badge '+(isTeacher?'badge-teacher':'badge-student');
     document.getElementById('codesMenuItem').style.display=isTeacher?'block':'none';
+    document.getElementById('meetingManagerLink').style.display=isTeacher?'block':'none';
     createAllPages();showPage('grade5');
+    updateNotificationBadge();
 }
+
 function createAllPages(){
     const mc=document.getElementById('mainContent');
     const names=['','','','','','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر'];
     let h='';
+    
     if(isTeacher){
-        h+=`<div id="codes" class="page"><div class="page-header codes-page-header"><h2>🔑 إدارة الأكواد</h2><p>إنشاء وإدارة أكواد تسجيل الطلاب</p></div>
-        <div class="generate-code-section"><div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
-        <div class="form-group" style="flex:1;min-width:150px;"><label>عدد مرات الاستخدام</label><input type="number" id="maxUses" value="1" min="1" max="100"></div>
-        <button class="btn btn-orange" onclick="generateCode()">🎫 إنشاء كود جديد</button></div></div>
+        h+=`<div id="meetingManager" class="page">
+            <div class="page-header special-header"><h2>🎥 مركز التحكم بالاجتماعات</h2><p>إدارة جميع اجتماعات Google Meet</p></div>
+            <div class="meeting-section">
+                <h3>➕ إضافة اجتماع جديد</h3>
+                <div class="form-group"><label>عنوان الاجتماع</label><input type="text" id="meetingTitle" placeholder="مثلاً: مراجعة الأحياء"></div>
+                <div class="form-group"><label>رابط Google Meet</label><input type="url" id="meetingLink" placeholder="https://meet.google.com/xxx-xxxx-xxx"></div>
+                <div class="form-group"><label>التاريخ والوقت</label><input type="datetime-local" id="meetingDate"></div>
+                <div class="form-group"><label>الصف المستهدف</label><select id="meetingGrade" onchange="toggleMeetingGrade()"><option value="all">جميع الصفوف</option><option value="5">الصف الخامس</option><option value="6">الصف السادس</option><option value="7">الصف السابع</option><option value="8">الصف الثامن</option><option value="9">الصف التاسع</option><option value="10">الصف العاشر</option><option value="11">الصف الحادي عشر</option><option value="12">الصف الثاني عشر</option></select></div>
+                <div class="form-group"><label>من يمكنه رؤية الاجتماع؟</label><select id="meetingVisibility" onchange="toggleStudentSelect()"><option value="all">جميع طلاب الصف</option><option value="restricted">طلاب محددين فقط</option></select></div>
+                <div id="studentSelectBox" class="student-select"></div>
+                <button class="btn btn-blue" onclick="addMeeting()">إضافة الاجتماع</button>
+            </div>
+            <div id="meetingsManagerContainer" class="books-grid"></div>
+        </div>`;
+    }
+
+    if(isTeacher){
+        h+=`<div id="codes" class="page"><div class="page-header special-header"><h2>🔑 إدارة الأكواد</h2><p>إنشاء وإدارة أكواد تسجيل الطلاب</p></div>
+        <div class="generate-code-section"><div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;"><div class="form-group" style="flex:1;min-width:150px;"><label>عدد مرات الاستخدام</label><input type="number" id="maxUses" value="1" min="1" max="100"></div><button class="btn btn-orange" onclick="generateCode()">🎫 إنشاء كود جديد</button></div></div>
         <div class="codes-list"><div class="codes-list-header">📋 الأكواد النشطة</div><div id="codesList"></div></div></div>`;
     }
     for(let i=5;i<=12;i++){
-        h+=`<div id="grade${i}" class="page"><div class="page-header"><h2>الصف ${names[i]}</h2><p>الكتب والملفات الخاصة بالصف ${names[i]}</p></div>
-        ${isTeacher?`<div class="upload-section"><div class="upload-form"><div class="file-input-wrapper"><input type="file" id="file${i}" accept=".pdf"></div><button class="btn btn-green" onclick="uploadPDF('grade${i}')">رفع الملف</button></div><small style="color:#666;display:block;margin-top:8px;">الحد الأقصى: 1 ميجابايت</small></div>`:''}
-        <div id="books${i}" class="books-grid"></div></div>`;
+        h+=`<div id="grade${i}" class="page">
+            <div class="page-header"><h2>الصف ${names[i]}</h2><p>الكتب والملفات الخاصة بالصف ${names[i]}</p></div>
+            <div class="section-tabs">
+                <button class="section-tab active" onclick="switchSection('grade${i}','books')">📚 الكتب</button>
+                <button class="section-tab" onclick="switchSection('grade${i}','exams')">📝 الإختبارات</button>
+                <button class="section-tab" onclick="switchSection('grade${i}','summaries')">📋 الملخصات</button>
+                <button class="section-tab" onclick="switchSection('grade${i}','activities')">🎯 الأنشطة</button>
+                <button class="section-tab" onclick="switchSection('grade${i}','meetings_grade')">🎥 اجتماعات</button>
+                <button class="section-tab" onclick="switchSection('grade${i}','videos')">▶️ مقاطع شروحات</button>
+            </div>
+            ${isTeacher?`<div class="upload-section" id="uploadBox_grade${i}"><div class="upload-form"><div class="file-input-wrapper"><input type="file" id="file_grade${i}" accept=".pdf"></div><button class="btn btn-green" onclick="uploadPDF('grade${i}')">رفع الملف</button></div><small style="color:#666;display:block;margin-top:8px;">الحد الأقصى: 1 ميجابايت | القسم: <strong id="currentSection_grade${i}">الكتب</strong></small></div>`:''}
+            ${isTeacher?`<div class="upload-section" id="videoBox_grade${i}" style="display:none;"><div class="upload-form"><button class="btn btn-blue" onclick="addVideo('grade${i}')">➕ إضافة فيديو يوتيوب</button></div></div>`:''}
+            <div id="books_grade${i}" class="section-content active"><div id="books_grade${i}_container" class="books-grid"></div></div>
+            <div id="exams_grade${i}" class="section-content"><div id="exams_grade${i}_container" class="books-grid"></div></div>
+            <div id="summaries_grade${i}" class="section-content"><div id="summaries_grade${i}_container" class="books-grid"></div></div>
+            <div id="activities_grade${i}" class="section-content"><div id="activities_grade${i}_container" class="books-grid"></div></div>
+            <div id="meetings_grade_grade${i}" class="section-content"><div id="meetings_grade_grade${i}_container" class="books-grid"></div></div>
+            <div id="videos_grade${i}" class="section-content"><div id="videos_grade${i}_container" class="books-grid"></div></div>
+        </div>`;
     }
     mc.innerHTML=h;
+}
+
+// ============ نظام الاجتماعات ============
+function toggleMeetingGrade(){if(document.getElementById('meetingVisibility').value==='restricted')toggleStudentSelect();}
+function toggleStudentSelect(){
+    const box=document.getElementById('studentSelectBox');
+    if(document.getElementById('meetingVisibility').value==='restricted'){
+        const students=getData('students');
+        box.innerHTML=students.map(s=>`<label><input type="checkbox" value="${s.username}"> ${s.name} (@${s.username})</label>`).join('')||'<p>لا يوجد طلاب مسجلين</p>';
+        box.style.display='block';
+    }else{box.style.display='none';}
+}
+function addMeeting(){
+    if(!isTeacher)return;
+    const title=document.getElementById('meetingTitle').value.trim();
+    const link=document.getElementById('meetingLink').value.trim();
+    const date=document.getElementById('meetingDate').value;
+    const visibility=document.getElementById('meetingVisibility').value;
+    const grade=document.getElementById('meetingGrade').value;
+    if(!title||!link)return alert('الرجاء إدخال العنوان والرابط');
+    let allowedUsers=[];
+    if(visibility==='restricted'){
+        const checks=document.querySelectorAll('#studentSelectBox input:checked');
+        allowedUsers=Array.from(checks).map(c=>c.value);
+        if(allowedUsers.length===0)return alert('الرجاء اختيار طالب واحد على الأقل');
+    }
+    const gradeNames={'all':'جميع الصفوف','5':'الخامس','6':'السادس','7':'السابع','8':'الثامن','9':'التاسع','10':'العاشر','11':'الحادي عشر','12':'الثاني عشر'};
+    const meeting={id:Date.now(),title,link,date,visibility,allowedUsers,grade:grade,gradeName:gradeNames[grade]||'جميع الصفوف',createdBy:currentUser.name,createdAt:new Date().toLocaleString('ar-SA')};
+    const meetings=getData('meetings');meetings.unshift(meeting);saveData('meetings',meetings);
+    addNotification(`🎥 اجتماع جديد للصف ${meeting.gradeName}: ${title}`,'meeting');
+    displayAllMeetings();
+    document.getElementById('meetingTitle').value='';document.getElementById('meetingLink').value='';document.getElementById('meetingDate').value='';
+    alert('✅ تم إضافة الاجتماع بنجاح!');
+}
+function displayAllMeetings(){
+    const container=document.getElementById('meetingsManagerContainer');if(!container)return;
+    const meetings=getData('meetings');
+    if(!meetings.length){container.innerHTML='<div class="no-books">لا توجد اجتماعات مضافة</div>';return;}
+    container.innerHTML=meetings.map(m=>`<div class="book-card meeting-card"><div class="book-cover">🎥</div><div class="book-info"><div class="book-title">${m.title}</div><div class="book-meta">🏫 ${m.gradeName||'جميع الصفوف'} | 📅 ${m.date||'غير محدد'} | 🕒 ${m.createdAt}${m.visibility==='restricted'?'<span class="visibility-badge visibility-restricted">🔒 خاص</span>':'<span class="visibility-badge visibility-all">🌐 عام</span>'}</div><div class="book-actions"><a href="${m.link}" target="_blank" class="read-btn join-btn" style="text-decoration:none;">🔗 انضم الآن</a><button class="delete-btn" onclick="deleteMeeting(${m.id})">🗑️</button></div></div></div>`).join('');
+}
+function deleteMeeting(id){if(!isTeacher||!confirm('حذف الاجتماع؟'))return;let meetings=getData('meetings');meetings=meetings.filter(m=>m.id!==id);saveData('meetings',meetings);displayAllMeetings();}
+function displayGradeMeetings(grade){
+    const container=document.getElementById('meetings_grade_'+grade+'_container');if(!container)return;
+    const meetings=getData('meetings');
+    const gradeNum=grade.replace('grade','');
+    const filtered=meetings.filter(m=>{if(m.grade==='all'||m.grade===gradeNum)return true;return false;}).filter(m=>{if(isTeacher)return true;if(m.visibility==='all')return true;if(m.visibility==='restricted'&&m.allowedUsers.includes(currentUser.username))return true;return false;});
+    if(!filtered.length){container.innerHTML='<p style="color:#666;text-align:center;">لا توجد اجتماعات لهذا الصف</p>';return;}
+    container.innerHTML=filtered.map(m=>`<div class="book-card meeting-card"><div class="book-cover">🎥</div><div class="book-info"><div class="book-title">${m.title}</div><div class="book-meta">📅 ${m.date||'غير محدد'} | 🕒 ${m.createdAt}</div><div class="book-actions"><a href="${m.link}" target="_blank" class="read-btn join-btn" style="text-decoration:none;">🔗 انضم الآن</a></div></div></div>`).join('');
+}
+
+// ============ نظام الفيديوهات ============
+function addVideo(grade){
+    if(!isTeacher)return;
+    const url=prompt('أدخل رابط يوتيوب:\n\nمثال: https://www.youtube.com/watch?v=xxxxxxxxxxx\nأو: https://youtu.be/xxxxxxxxxxx');
+    if(!url)return;
+    const title=prompt('أدخل عنوان الفيديو:');
+    if(!title)return;
+    
+    const videoId=extractYouTubeID(url.trim());
+    if(!videoId){
+        return alert('❌ رابط يوتيوب غير صحيح!\n\nتأكد من أن الرابط يشبه:\nhttps://www.youtube.com/watch?v=xxxxxxxxxxx\nأو\nhttps://youtu.be/xxxxxxxxxxx');
+    }
+    
+    const embedUrl='https://www.youtube.com/embed/' + videoId;
+    const videos=getData('videos_'+grade);
+    videos.unshift({
+        id:Date.now(),
+        title:title,
+        url:embedUrl,
+        originalUrl:url.trim(),
+        date:new Date().toLocaleDateString('ar-SA')
+    });
+    saveData('videos_'+grade,videos);
+    displayGradeVideos(grade);
+    addNotification('▶️ فيديو جديد في الصف '+grade.replace('grade','')+': '+title,'video');
+    alert('✅ تم إضافة الفيديو بنجاح!');
+}
+
+function extractYouTubeID(url){
+    if(!url) return null;
+    
+    url = url.trim();
+    
+    // حالة youtu.be/xxxxxxx
+    if(url.includes('youtu.be/')){
+        const parts = url.split('youtu.be/');
+        if(parts.length > 1){
+            let id = parts[1].split('?')[0].split('&')[0].split('/')[0];
+            if(id.length >= 11) return id.substring(0,11);
+        }
+    }
+    
+    // حالة youtube.com/watch?v=xxxxxxx
+    if(url.includes('youtube.com/watch')){
+        try {
+            const urlObj = new URL(url);
+            const videoId = urlObj.searchParams.get('v');
+            if(videoId && videoId.length >= 11) return videoId.substring(0,11);
+        } catch(e) {}
+    }
+    
+    // حالة youtube.com/embed/xxxxxxx
+    if(url.includes('youtube.com/embed/')){
+        const parts = url.split('youtube.com/embed/');
+        if(parts.length > 1){
+            let id = parts[1].split('?')[0].split('&')[0];
+            if(id.length >= 11) return id.substring(0,11);
+        }
+    }
+    
+    // محاولة أخيرة
+    const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+    if(match) return match[1];
+    
+    return null;
+}
+
+function deleteVideo(grade,idx){
+    if(!isTeacher||!confirm('حذف الفيديو؟'))return;
+    const videos=getData('videos_'+grade);
+    videos.splice(idx,1);
+    saveData('videos_'+grade,videos);
+    displayGradeVideos(grade);
+}
+
+function displayGradeVideos(grade){
+    const container=document.getElementById('videos_'+grade+'_container');
+    if(!container)return;
+    const videos=getData('videos_'+grade);
+    if(!videos.length){
+        container.innerHTML='<p style="color:#666;text-align:center;padding:30px;">لا توجد فيديوهات مضافة</p>';
+        return;
+    }
+    container.innerHTML=videos.map((v,i)=>`
+        <div class="book-card meeting-card">
+            <div class="book-cover">▶️</div>
+            <div class="book-info">
+                <div class="book-title">${v.title}</div>
+                <div class="book-meta">📅 ${v.date}</div>
+                <div class="book-actions">
+                    <button class="read-btn join-btn" onclick="openVideoModal('${v.url}')">▶️ شاهد الآن</button>
+                    ${isTeacher?`<button class="delete-btn" onclick="deleteVideo('${grade}',${i})">🗑️</button>`:''}
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function generateCode(){
     if(!isTeacher)return;
     const max=parseInt(document.getElementById('maxUses').value)||1;
     let code='';for(let i=0;i<8;i++)code+='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)];
-    const codes=getData('codes');
-    codes.unshift({code:code,max:max,used:0,date:new Date().toLocaleDateString('ar-SA')});
-    saveData('codes',codes);
-    displayCodes();
-    lastGeneratedCode=code;
-    document.getElementById('modalCode').textContent=code;
-    document.getElementById('modalUses').textContent=max;
-    document.getElementById('copyModal').classList.add('active');
-    document.getElementById('copyMsg').style.display='none';
+    const codes=getData('codes');codes.unshift({code:code,max:max,used:0,date:new Date().toLocaleDateString('ar-SA')});saveData('codes',codes);
+    displayCodes();lastGeneratedCode=code;
+    document.getElementById('modalCode').textContent=code;document.getElementById('copyModalText').textContent='الكود الجديد:';
+    document.getElementById('copyModal').classList.add('active');document.getElementById('copyMsg').style.display='none';
 }
 function copyCodeFromModal(){
-    navigator.clipboard.writeText(lastGeneratedCode).then(()=>{
-        document.getElementById('copyMsg').style.display='block';
-        setTimeout(()=>{document.getElementById('copyMsg').style.display='none'},2000);
-    }).catch(()=>{
-        const input=document.createElement('input');input.value=lastGeneratedCode;
-        document.body.appendChild(input);input.select();document.execCommand('copy');
-        document.body.removeChild(input);
-        document.getElementById('copyMsg').style.display='block';
-        setTimeout(()=>{document.getElementById('copyMsg').style.display='none'},2000);
+    navigator.clipboard.writeText(lastGeneratedCode).then(()=>{document.getElementById('copyMsg').style.display='block';setTimeout(()=>document.getElementById('copyMsg').style.display='none',2000);}).catch(()=>{
+        const input=document.createElement('input');input.value=lastGeneratedCode;document.body.appendChild(input);input.select();document.execCommand('copy');document.body.removeChild(input);
+        document.getElementById('copyMsg').style.display='block';setTimeout(()=>document.getElementById('copyMsg').style.display='none',2000);
     });
 }
 function closeCopyModal(){document.getElementById('copyModal').classList.remove('active')}
 function displayCodes(){
     const c=document.getElementById('codesList');if(!c)return;
-    const codes=getData('codes');
-    if(!codes.length){c.innerHTML='<div class="no-books">لا توجد أكواد حالياً</div>';return}
-    c.innerHTML=codes.map((cd,i)=>`<div class="code-item">
-        <span class="code-value">${cd.code}</span><span>👥 ${cd.used}/${cd.max}</span>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="btn-copy" onclick="copyExistingCode('${cd.code}',this)">📋 نسخ</button>
-            <button class="delete-btn" onclick="deleteCode(${i})">🗑️</button>
-        </div></div>`).join('');
+    const codes=getData('codes');if(!codes.length){c.innerHTML='<div class="no-books">لا توجد أكواد حالياً</div>';return;}
+    c.innerHTML=codes.map((cd,i)=>`<div class="code-item"><span class="code-value">${cd.code}</span><span>👥 ${cd.used}/${cd.max}</span><div style="display:flex;gap:5px;flex-wrap:wrap;"><button class="btn-copy" onclick="copyExistingCode('${cd.code}',this)">📋 نسخ</button><button class="delete-btn" onclick="deleteCode(${i})">🗑️</button></div></div>`).join('');
 }
 function copyExistingCode(code,btn){
-    navigator.clipboard.writeText(code).then(()=>{
-        btn.textContent='✅ تم';btn.classList.add('copied');
-        setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);
-    }).catch(()=>{
-        const input=document.createElement('input');input.value=code;
-        document.body.appendChild(input);input.select();document.execCommand('copy');
-        document.body.removeChild(input);
-        btn.textContent='✅ تم';btn.classList.add('copied');
-        setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);
+    navigator.clipboard.writeText(code).then(()=>{btn.textContent='✅ تم';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);}).catch(()=>{
+        const input=document.createElement('input');input.value=code;document.body.appendChild(input);input.select();document.execCommand('copy');document.body.removeChild(input);
+        btn.textContent='✅ تم';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 نسخ';btn.classList.remove('copied')},2000);
     });
 }
-function deleteCode(idx){
-    if(!confirm('حذف الكود؟'))return;
-    const codes=getData('codes');codes.splice(idx,1);saveData('codes',codes);displayCodes();
-}
+function deleteCode(idx){if(!confirm('حذف الكود؟'))return;const codes=getData('codes');codes.splice(idx,1);saveData('codes',codes);displayCodes();}
 
+function switchSection(grade,section){
+    const tabs=document.querySelectorAll('#'+grade+' .section-tab');tabs.forEach(t=>t.classList.remove('active'));
+    if(event&&event.target)event.target.classList.add('active');
+    const contents=document.querySelectorAll('#'+grade+' .section-content');contents.forEach(c=>c.classList.remove('active'));
+    const target=document.getElementById(section+'_'+grade);if(target)target.classList.add('active');
+    currentSection[grade]=section;
+    
+    const uploadBox = document.getElementById('uploadBox_'+grade);
+    const videoBox = document.getElementById('videoBox_'+grade);
+    if(uploadBox) uploadBox.style.display = 'none';
+    if(videoBox) videoBox.style.display = 'none';
+    
+    if(section==='meetings_grade'){
+        displayGradeMeetings(grade);
+    } else if(section==='videos'){
+        if(videoBox) videoBox.style.display = 'block';
+        displayGradeVideos(grade);
+    } else {
+        if(uploadBox) uploadBox.style.display = 'block';
+        displaySectionBooks(grade,section);
+    }
+}
+function displaySectionBooks(grade,section){
+    const container=document.getElementById(section+'_'+grade+'_container');if(!container)return;
+    const storageKey=section+'_'+grade;const books=getData(storageKey);
+    if(!books.length){container.innerHTML='<div class="no-books">لا توجد ملفات في هذا القسم</div>';return;}
+    const icons={books:'📚',exams:'📝',summaries:'📋',activities:'🎯'};
+    container.innerHTML=books.map((book,i)=>`<div class="book-card"><div class="book-cover">${icons[section]||'📚'}</div><div class="book-info"><div class="book-title">${book.title}</div><div class="book-meta">📅 ${book.uploadDate}<br>📏 ${book.size}${book.uploadedBy?'<br>👤 '+book.uploadedBy:''}</div><div class="book-actions"><button class="read-btn" onclick="openBookBySection('${grade}','${section}',${i})">📖 قراءة</button>${isTeacher?`<button class="delete-btn" onclick="deleteBookBySection('${grade}','${section}',${i})">🗑️ حذف</button>`:''}</div></div></div>`).join('');
+}
 function uploadPDF(grade){
     if(!isTeacher)return alert('عذراً، فقط الأساتذة يمكنهم رفع الملفات');
-    const gn=grade.replace('grade',''),fi=document.getElementById('file'+gn);
+    const section=currentSection[grade]||'books';const fi=document.getElementById('file_'+grade);
     if(!fi||!fi.files[0])return alert('الرجاء اختيار ملف PDF');
     const file=fi.files[0];
     if(file.type!=='application/pdf')return alert('الرجاء اختيار ملف PDF فقط');
     if(file.size>1000000)return alert('الملف كبير جداً. الحد الأقصى 1 ميجابايت');
     const reader=new FileReader();
     reader.onload=function(e){
-        const books=getData('books_'+grade);
+        const storageKey=section+'_'+grade;const books=getData(storageKey);
         books.unshift({id:Date.now(),title:file.name.replace('.pdf',''),data:e.target.result,uploadDate:new Date().toLocaleDateString('ar-SA'),size:(file.size/1024/1024).toFixed(2)+' MB',uploadedBy:currentUser.name});
-        saveData('books_'+grade,books);
-        fi.value='';displayBooks(grade);
+        saveData(storageKey,books);fi.value='';displaySectionBooks(grade,section);
+        addNotification(`📚 تم رفع ملف جديد في الصف ${grade.replace('grade','')} - ${section}`,'file');
         alert('✅ تم رفع الملف بنجاح!');
     };
     reader.readAsDataURL(file);
 }
-function displayBooks(grade){
-    const container=document.getElementById('books'+grade.replace('grade',''));
-    if(!container)return;
-    const books=getData('books_'+grade);
-    if(!books.length){container.innerHTML='<div class="no-books">لا توجد كتب متاحة حالياً في هذا الصف</div>';return}
-    container.innerHTML=books.map((book,i)=>`<div class="book-card"><div class="book-cover">📗</div>
-        <div class="book-info"><div class="book-title">${book.title}</div>
-        <div class="book-meta">📅 ${book.uploadDate}<br>📏 ${book.size}${book.uploadedBy?'<br>👤 '+book.uploadedBy:''}</div>
-        <div class="book-actions">
-            <button class="read-btn" onclick="openBook('${grade}',${i})">📖 قراءة</button>
-            ${isTeacher?`<button class="delete-btn" onclick="deleteBook('${grade}',${i})">🗑️ حذف</button>`:''}
-        </div></div></div>`).join('');
+function deleteBookBySection(grade,section,idx){
+    if(!isTeacher||!confirm('هل أنت متأكد من حذف هذا الملف؟'))return;
+    const storageKey=section+'_'+grade;const books=getData(storageKey);books.splice(idx,1);saveData(storageKey,books);displaySectionBooks(grade,section);
 }
-function deleteBook(grade,idx){
-    if(!isTeacher||!confirm('هل أنت متأكد من حذف هذا الكتاب؟'))return;
-    const books=getData('books_'+grade);
-    books.splice(idx,1);
-    saveData('books_'+grade,books);
-    displayBooks(grade);
+function openBookBySection(grade,section,idx){
+    const storageKey=section+'_'+grade;const books=getData(storageKey);const book=books[idx];if(!book)return;
+    document.getElementById('readerBookTitle').textContent='📖 '+book.title;
+    document.getElementById('bookReader').classList.add('active');document.body.style.overflow='hidden';
+    currentPage=1;currentZoom=1;
+    try{const d=book.data.includes(',')?book.data.split(',')[1]:book.data;pdfjsLib.getDocument({data:atob(d)}).promise.then(function(pdf){pdfDoc=pdf;totalPages=pdf.numPages;document.getElementById('progressSlider').max=totalPages;document.getElementById('progressEnd').textContent=totalPages;renderPage(1);}).catch(function(){alert('خطأ في فتح الكتاب');closeReader();});}catch(e){alert('خطأ في فتح الكتاب');closeReader();}
 }
+function displayBooks(grade){const section=currentSection[grade]||'books';displaySectionBooks(grade,section);}
 
-// ==================== قارئ الكتاب ====================
-function openBook(grade, idx) {
-    const books = getData('books_' + grade), book = books[idx];
-    if (!book) return;
-    document.getElementById('readerBookTitle').textContent = '📖 ' + book.title;
-    document.getElementById('bookReader').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    currentPage = 1; currentZoom = 1;
-    try {
-        const d = book.data.includes(',') ? book.data.split(',')[1] : book.data;
-        pdfjsLib.getDocument({ data: atob(d) }).promise.then(function(pdf) {
-            pdfDoc = pdf; totalPages = pdf.numPages;
-            document.getElementById('progressSlider').max = totalPages;
-            document.getElementById('progressEnd').textContent = totalPages;
-            renderPage(1);
-        }).catch(function() { alert('خطأ في فتح الكتاب'); closeReader(); });
-    } catch (e) { alert('خطأ في فتح الكتاب'); closeReader(); }
+function renderPage(n){
+    if(!pdfDoc)return;currentPage=n;
+    document.getElementById('pageInfo').textContent='صفحة '+n+' من '+totalPages+' ('+Math.round(currentZoom*100)+'%)';
+    document.getElementById('progressSlider').value=n;document.getElementById('progressStart').textContent=n;
+    document.getElementById('prevBtn').disabled=n<=1;document.getElementById('nextBtn').disabled=n>=totalPages;
+    pdfDoc.getPage(n).then(function(page){var scale=1.5*currentZoom,vp=page.getViewport({scale:scale});var canvas=document.createElement('canvas');canvas.height=vp.height;canvas.width=vp.width;return page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise.then(function(){var img=document.getElementById('pageImage');img.src=canvas.toDataURL('image/jpeg',0.9);img.style.width=vp.width+'px';img.style.height=vp.height+'px';img.style.maxWidth='none';img.style.maxHeight='none';var container=document.getElementById('readerContainer');container.scrollLeft=(img.width-container.clientWidth)/2;container.scrollTop=(img.height-container.clientHeight)/2;});});
 }
+function nextPage(){if(currentPage<totalPages)renderPage(currentPage+1);}
+function prevPage(){if(currentPage>1)renderPage(currentPage-1);}
+function goToPage(n){renderPage(parseInt(n));}
+function zoomIn(){if(!pdfDoc||currentZoom>=3)return;currentZoom=Math.min(currentZoom*2,3);renderPage(currentPage);}
+function zoomOut(){if(!pdfDoc||currentZoom<=0.5)return;currentZoom=Math.max(currentZoom/2,0.5);renderPage(currentPage);}
+function closeReader(){document.getElementById('bookReader').classList.remove('active');document.body.style.overflow='';pdfDoc=null;}
 
-function renderPage(n) {
-    if (!pdfDoc) return;
-    currentPage = n;
-    var zoomPercent = Math.round(currentZoom * 100);
-    document.getElementById('pageInfo').textContent = 'صفحة ' + n + ' من ' + totalPages + ' (' + zoomPercent + '%)';
-    document.getElementById('progressSlider').value = n;
-    document.getElementById('progressStart').textContent = n;
-    document.getElementById('prevBtn').disabled = n <= 1;
-    document.getElementById('nextBtn').disabled = n >= totalPages;
-    
-    pdfDoc.getPage(n).then(function(page) {
-        var scale = 1.5 * currentZoom;
-        var vp = page.getViewport({ scale: scale });
-        var canvas = document.createElement('canvas');
-        canvas.height = vp.height; canvas.width = vp.width;
-        var ctx = canvas.getContext('2d');
-        
-        return page.render({ canvasContext: ctx, viewport: vp }).promise.then(function() {
-            var img = document.getElementById('pageImage');
-            img.src = canvas.toDataURL('image/jpeg', 0.9);
-            img.style.width = vp.width + 'px';
-            img.style.height = vp.height + 'px';
-            img.style.maxWidth = 'none';
-            img.style.maxHeight = 'none';
-            
-            // توسيط الصفحة بعد التحميل
-            var container = document.getElementById('readerContainer');
-            container.scrollLeft = (img.width - container.clientWidth) / 2;
-            container.scrollTop = (img.height - container.clientHeight) / 2;
-        });
-    });
-}
-
-function nextPage() { if (currentPage < totalPages) renderPage(currentPage + 1); }
-function prevPage() { if (currentPage > 1) renderPage(currentPage - 1); }
-function goToPage(n) { renderPage(parseInt(n)); }
-
-function zoomIn() {
-    if (!pdfDoc) return;
-    if (currentZoom >= 3) return;
-    currentZoom = Math.min(currentZoom * 2, 3);
-    renderPage(currentPage);
-}
-
-function zoomOut() {
-    if (!pdfDoc) return;
-    if (currentZoom <= 0.5) return;
-    currentZoom = Math.max(currentZoom / 2, 0.5);
-    renderPage(currentPage);
-}
-
-function closeReader() {
-    document.getElementById('bookReader').classList.remove('active');
-    document.body.style.overflow = '';
-    pdfDoc = null;
-}
-
-// ==================== سحب الصفحة داخل القارئ ====================
-let isDragging = false, startX, startY, scrollLeft, scrollTop;
-const readerContainer = document.getElementById('readerContainer');
-
-readerContainer.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    startX = e.pageX - this.offsetLeft;
-    startY = e.pageY - this.offsetTop;
-    scrollLeft = this.scrollLeft;
-    scrollTop = this.scrollTop;
-});
-
-readerContainer.addEventListener('mouseleave', function() { isDragging = false; });
-readerContainer.addEventListener('mouseup', function() { isDragging = false; });
-
-readerContainer.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - this.offsetLeft;
-    const y = e.pageY - this.offsetTop;
-    this.scrollLeft = scrollLeft - (x - startX) * 2;
-    this.scrollTop = scrollTop - (y - startY) * 2;
-});
-
-readerContainer.addEventListener('dragstart', function(e) { e.preventDefault(); });
-
-document.addEventListener('keydown',function(e){
-    if(!document.getElementById('bookReader').classList.contains('active'))return;
-    if(e.key==='ArrowRight'){e.preventDefault();nextPage();}
-    if(e.key==='ArrowLeft'){e.preventDefault();prevPage();}
-    if(e.key==='Escape')closeReader();
-});
-document.addEventListener('contextmenu',function(e){
-    if(document.getElementById('bookReader').classList.contains('active'))e.preventDefault();
-});
+let isDragging=false,startX,startY,scrollLeft,scrollTop;
+const readerContainer=document.getElementById('readerContainer');
+readerContainer.addEventListener('mousedown',function(e){isDragging=true;startX=e.pageX-this.offsetLeft;startY=e.pageY-this.offsetTop;scrollLeft=this.scrollLeft;scrollTop=this.scrollTop;});
+readerContainer.addEventListener('mouseleave',function(){isDragging=false;});
+readerContainer.addEventListener('mouseup',function(){isDragging=false;});
+readerContainer.addEventListener('mousemove',function(e){if(!isDragging)return;e.preventDefault();this.scrollLeft=scrollLeft-(e.pageX-this.offsetLeft-startX)*2;this.scrollTop=scrollTop-(e.pageY-this.offsetTop-startY)*2;});
+readerContainer.addEventListener('dragstart',function(e){e.preventDefault();});
+document.addEventListener('keydown',function(e){if(!document.getElementById('bookReader').classList.contains('active'))return;if(e.key==='ArrowRight'){e.preventDefault();nextPage();}if(e.key==='ArrowLeft'){e.preventDefault();prevPage();}if(e.key==='Escape')closeReader();});
+document.addEventListener('contextmenu',function(e){if(document.getElementById('bookReader').classList.contains('active'))e.preventDefault();});
 
 function showPage(name){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     const pg=document.getElementById(name);if(pg)pg.classList.add('active');
     document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active'));
     if(event&&event.target)event.target.classList.add('active');
+    if(name.startsWith('grade')&&!currentSection[name]){currentSection[name]='books';}
     if(name==='codes')displayCodes();
-    else if(name.startsWith('grade'))displayBooks(name);
+    else if(name==='meetingManager')displayAllMeetings();
+    else if(name.startsWith('grade')){displaySectionBooks(name,currentSection[name]||'books');displayGradeMeetings(name);displayGradeVideos(name);}
     if(window.innerWidth<768)toggleSidebar();
 }
-function toggleSidebar(){
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('sidebarOverlay').classList.toggle('active');
-}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('active');document.getElementById('sidebarOverlay').classList.toggle('active');}
 function logout(){
-    currentUser=null;isTeacher=false;verifiedCode=null;
-    localStorage.removeItem('current_user');
-    document.getElementById('loginPage').style.display='flex';
-    document.getElementById('mainPage').classList.remove('active');
+    currentUser=null;isTeacher=false;verifiedCode=null;localStorage.removeItem('current_user');
+    document.getElementById('loginPage').style.display='flex';document.getElementById('mainPage').classList.remove('active');
     ['teacherUsername','teacherPassword','studentUsername','studentPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.querySelectorAll('.msg').forEach(m=>m.classList.remove('show'));
 }
-
 document.getElementById('copyModal').addEventListener('click',function(e){if(e.target===this)closeCopyModal();});
-
 init();
 </script>
 </body>
